@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  cockroach_test:
+    image: cockroachdb/cockroach:v2.1.6
+    command: start --insecure
+    logging:
+      driver: "none"
+    networks:
+    - app-network
+
+  app_test:
+    image: crdb-test:latest
+    environment:
+      CONN_STR: postgresql://root@cockroach_test:26257/defaultdb?sslmode=disable
+    command: ./crdb-test -db
+    working_dir: /app
+    depends_on:
+    - cockroach_test
+    networks:
+    - app-network
+
+networks:
+  app-network:
+    driver: bridge
